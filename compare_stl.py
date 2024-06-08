@@ -48,25 +48,6 @@ def get_list_of_vertices(vectors):
     vert_list = np.unique(vert_list, axis=0)
 
     return vert_list
-    list_of_vertices = np.empty((1,3))
-    # list_of_vertices = []
-    print(f'empty array: {list_of_vertices} size: {list_of_vertices.size}')
-
-    for facet in vectors:
-        for vertex in facet:
-            print(f'vertex: {vertex} type: {type(vertex)}')
-            isInList = isVertexInList(vertex, list_of_vertices)
-            print(f'is vertex in list? {isInList}')
-            # if vertex not in list_of_vertices:
-            if not isVertexInList(vertex, list_of_vertices):
-                print(f'----appended: {vertex}')
-                list_of_vertices = np.vstack([list_of_vertices, vertex])
-                
-                # list_of_vertices.append(vertex.tolist())
-    print(f'array: {list_of_vertices}')
-    
-    return list_of_vertices
-
 
 def compare_models_match_percentage(model1, model2):
     # if filename
@@ -122,12 +103,12 @@ def count_duplicates_numpy(v1_list, v2_list):
 
     for vert in v1_list:
         total_verts += 1
-        # find index of vertex in second list
-        index = isVertexInList(vert, v2_list)
-        if index>=0: 
+        if (vert==v2_list).all(1).any():
             dup_verts += 1
-            v2_list = np.delete(v2_list, index, axis=0)
-    total_verts += v2_list.shape[0]
+    print('duplicates counted in model 1')
+    for vert in v2_list:
+        if not (vert==v1_list).all(1).any():
+            total_verts += 1
 
     print(f'\ndup verts: {dup_verts} total verts: {total_verts}')
     match = dup_verts/total_verts * 100
@@ -135,13 +116,20 @@ def count_duplicates_numpy(v1_list, v2_list):
 
     return match
 
+import datetime as dt
 
+start = dt.datetime.now()
 model1 = "model_files/A38_Flexi_Baby_Dragon_Keychain.stl"
 model2 = "model_files/A38_Flexi_Baby_Dragon.stl"
+# model2 = "model_files/Dice.stl"
+# model1 = "model_files/Dice.stl"
 # model1 = "model_files/CubeLibre_C.stl"
 # model2 = "model_files/CubeLibre_A.stl"
 # show_3d_model(model1)
 score = compare_models_match_percentage(model1, model2)
+stop = dt.datetime.now()
+
+print(f'time taken: {stop-start}')
 
 
 
