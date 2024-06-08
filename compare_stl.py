@@ -31,13 +31,12 @@ def show_3d_model(model_mesh):
 # may not be needed
 def isVertexInList(vert, vertList:np.array):
     if vertList.size == 0:
-        return False
+        print('empty array')
+        return 0
     for i, entry in enumerate(vertList):
-        # for i in range
-        # if entry == vert:
         if np.array_equal(vert, entry):
             return i
-    return False
+    return -1
 
 def get_list_of_vertices(vectors):
     vert_list = np.copy(vectors)
@@ -48,7 +47,7 @@ def get_list_of_vertices(vectors):
     # remove duplicates
     vert_list = np.unique(vert_list, axis=0)
 
-    return vert_list.tolist()
+    return vert_list
     list_of_vertices = np.empty((1,3))
     # list_of_vertices = []
     print(f'empty array: {list_of_vertices} size: {list_of_vertices.size}')
@@ -91,6 +90,13 @@ def compare_models_match_percentage(model1, model2):
 
     # count total vertices and total number of duplicates between both models
     # think about just sorting them into two different lists - showing on matplotlib what are dups
+    # score = count_duplicates_list(v1_list, v2_list)
+    score = count_duplicates_numpy(v1_list, v2_list)
+    return score
+
+def count_duplicates_list(v1_list, v2_list):
+    v1_list = v1_list.tolist()
+    v2_list = v2_list.tolist()
     print('counting shared vertices...')
     total_verts = 0
     dup_verts = 0
@@ -109,8 +115,32 @@ def compare_models_match_percentage(model1, model2):
 
     return match
 
+def count_duplicates_numpy(v1_list, v2_list):
+    print('counting shared vertices...')
+    total_verts = 0
+    dup_verts = 0
+
+    for vert in v1_list:
+        total_verts += 1
+        # find index of vertex in second list
+        index = isVertexInList(vert, v2_list)
+        if index>=0: 
+            dup_verts += 1
+            v2_list = np.delete(v2_list, index, axis=0)
+    total_verts += v2_list.shape[0]
+
+    print(f'\ndup verts: {dup_verts} total verts: {total_verts}')
+    match = dup_verts/total_verts * 100
+    print(f'model 1 and 2 match score: {match:.1f}%')
+
+    return match
+
+
 model1 = "model_files/A38_Flexi_Baby_Dragon_Keychain.stl"
 model2 = "model_files/A38_Flexi_Baby_Dragon.stl"
+# model1 = "model_files/CubeLibre_C.stl"
+# model2 = "model_files/CubeLibre_A.stl"
+# show_3d_model(model1)
 score = compare_models_match_percentage(model1, model2)
 
 
