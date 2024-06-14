@@ -54,18 +54,18 @@ class Triangle:
             v3 = self.vertices[2]
         # print(self.edges)
         d1 = math.sqrt( pow((v1[0]-v2[0]), 2) + pow((v1[1]-v2[1]), 2) + pow((v1[2]-v2[2]), 2) )
-        d1 = round(d1, 2)
+        d1 = round(d1, 3)
 
         d2 = math.sqrt( pow((v1[0]-v3[0]), 2) + pow((v1[1]-v3[1]), 2) + pow((v1[2]-v3[2]), 2) )
-        d2 = round(d2, 2)
+        d2 = round(d2, 3)
 
         d3 = math.sqrt( pow((v2[0]-v3[0]), 2) + pow((v2[1]-v3[1]), 2) + pow((v2[2]-v3[2]), 2) )
-        d3 = round(d3, 2)
+        d3 = round(d3, 3)
 
-        # print(np.array([d1,d2,d3]))
         return np.array([d1,d2,d3])
 
     def calculate_area_of_triangle(self, v1=None, v2=None, v3=None):
+        edges = None 
         if v1 is None or v2 is None or v3 is None:
             v1 = self.vertices[0]
             v2 = self.vertices[1]
@@ -74,11 +74,30 @@ class Triangle:
                 self.edges = self.calculate_edge_lengths()
             edges = self.edges
 
-        edges = self.calculate_edge_lengths(v1, v2, v3)
+        if edges is None:
+            edges = self.calculate_edge_lengths(v1, v2, v3)
+
         s = (edges[0] + edges[1] + edges[2])/2
         area = math.sqrt( s * (s-edges[0]) * (s-edges[1]) * (s-edges[2]))
-        return round(area, 2)
 
+        return round(area, 3)
+    
+    def isPointInTriangle(self, point=None):
+        if self.vertices is None:
+            # print('The vertices of the triangle must be set first!')
+            raise Exception('The vertices of the triangle must be set first!')
+        if point is None:
+            raise Exception("'point' cannot be None.")
+        if type(point) is list:
+            point = np.array(point)
+        
+        # calculate area of 3 triangles with point and see if they add up to area
+        area1 = self.calculate_area_of_triangle(self.vertices[0], self.vertices[1], point)
+        area2 = self.calculate_area_of_triangle(self.vertices[0], self.vertices[2], point)
+        area3 = self.calculate_area_of_triangle(self.vertices[1], self.vertices[2], point)
+
+        # print(f'{self.area} == ({area1} + {area2} + {area3}) = {area1+area2+area3}')
+        return round(self.area,2) == round((area1 + area2 + area3), 2)
     
     def __str__(self):
         return f'{self.vertices} \narea: {self.area} \nedge lengths: {self.edges}'
@@ -94,5 +113,8 @@ ntriangle.calculate_edge_lengths()
 ntriangle.calculate_area_of_triangle()
 
 print(ntriangle)
+
+res = ntriangle.isPointInTriangle([2,1,1])
+print(res)
 
 
