@@ -110,23 +110,23 @@ class Shape:
         print(f'score: {total_matched_or_close}/{total_points}={(total_matched_or_close/total_points)*100:.2f}%')
             
 
-# --------- testing ----------
-import datetime as dt
+# # --------- testing ----------
+# import datetime as dt
 
-start = dt.datetime.now()
+# start = dt.datetime.now()
 
-newshape = Shape('model_files/CubeLibre_C.stl')
-# newshape = Shape('model_files/Dice.stl')
-# newshape = Shape('model_files/A38_Flexi_Baby_Dragon_Keychain.stl')
+# newshape = Shape('model_files/CubeLibre_C.stl')
+# # newshape = Shape('model_files/Dice.stl')
+# # newshape = Shape('model_files/A38_Flexi_Baby_Dragon_Keychain.stl')
 
-rivalshape = Shape('model_files/CubeLibre_A.stl')
-# rivalshape = Shape('model_files/A38_Flexi_Baby_Dragon.stl')
+# rivalshape = Shape('model_files/CubeLibre_A.stl')
+# # rivalshape = Shape('model_files/A38_Flexi_Baby_Dragon.stl')
 
-stop = dt.datetime.now()
-print(f'\ntime to load files with triangles and point clouds: {stop-start}')
+# stop = dt.datetime.now()
+# print(f'\ntime to load files with triangles and point clouds: {stop-start}')
 
-# newshape.compare_shapes(rivalshape)
-# rivalshape.compare_shapes(newshape)
-stop = dt.datetime.now()
-print(f'\ntime to compare models: {stop-start}')
+# # newshape.compare_shapes(rivalshape)
+# # rivalshape.compare_shapes(newshape)
+# stop = dt.datetime.now()
+# print(f'\ntime to compare models: {stop-start}')
 
