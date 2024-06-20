@@ -30,7 +30,7 @@ def show_3d_model(model_mesh):
 # ----- main test -------
    
 # show_3d_model('Dice.stl')
-your_mesh = open_stl_model('CubeLibre_C.stl')
+your_mesh = open_stl_model('model_files/CubeLibre_C.stl')
 
 volume, cog, inertia = your_mesh.get_mass_properties()
 print("Volume                                  = {0}".format(volume))
