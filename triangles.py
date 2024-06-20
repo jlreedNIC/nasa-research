@@ -45,7 +45,10 @@ class Triangle:
 
                 self.vertices = np.array(verts, np.float32)
         else:
-            self.vertices = verts
+            if verts.shape != (3,3):
+                raise Exception('Your numpy array is not the right size. Must be (3,3)')
+            else:
+                self.vertices = verts
         
         self.edges = self.calculate_edge_lengths()
         self.area = self.calculate_area_of_triangle()
@@ -64,7 +67,7 @@ class Triangle:
         
         d1 = math.sqrt( pow((v1[0]-v2[0]), 2) + pow((v1[1]-v2[1]), 2) + pow((v1[2]-v2[2]), 2) )
         
-        return round(d1, 3)
+        return round(d1, 5)
 
     def calculate_edge_lengths(self, v1=None, v2=None, v3=None):
         """
@@ -111,9 +114,12 @@ class Triangle:
             edges = self.calculate_edge_lengths(v1, v2, v3)
 
         s = (edges[0] + edges[1] + edges[2])/2
+        s = round(s, 5)
+        if s<max(edges):
+            s = max(edges)
         area = math.sqrt( s * (s-edges[0]) * (s-edges[1]) * (s-edges[2]))
 
-        return round(area, 3)
+        return round(area, 2)
     
     def isPointInTriangle(self, point=None):
         """
@@ -164,7 +170,7 @@ class Triangle:
             # print(f'comparing {point} and {self.vertices[i]}')
             edges[i] = self.calculate_edge(point, self.vertices[i])
         
-        print(f'edges: {edges}')
+        # print(f'edges: {edges}')
         # print(f'{min(edges)} <= {alpha}')
         return min(edges) <= alpha
     
@@ -172,23 +178,23 @@ class Triangle:
         return f'{self.vertices} \narea: {self.area} \nedge lengths: {self.edges}'
 
 
-# ----- testing ------
-test = np.array([[1,1,1],[4,3,3],[2,5,5]])
-# print(test.shape, test)
-ntriangle = Triangle()
-ntriangle.set_vertices(test)
+# # ----- testing ------
+# test = np.array([[1,1,1],[4,3,3],[2,5,5]])
+# # print(test.shape, test)
+# ntriangle = Triangle()
+# ntriangle.set_vertices(test)
 
-ntriangle.calculate_edge_lengths()
-ntriangle.calculate_area_of_triangle()
+# ntriangle.calculate_edge_lengths()
+# ntriangle.calculate_area_of_triangle()
 
-print(ntriangle)
+# print(ntriangle)
 
-point = [0,0,0]
-res = ntriangle.isPointInTriangle(point)
-print(f'\nIs point in triangle? {res}')
+# point = [0,0,0]
+# res = ntriangle.isPointInTriangle(point)
+# print(f'\nIs point in triangle? {res}')
 
-threshhold = 2
-res = ntriangle.isPointCloseToTriangle(point, threshhold)
-print(f'Is point within {threshhold} distance of triangle? {res}')
+# threshhold = 2
+# res = ntriangle.isPointCloseToTriangle(point, threshhold)
+# print(f'Is point within {threshhold} distance of triangle? {res}')
 
 
