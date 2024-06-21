@@ -48,17 +48,19 @@ class Shape:
         # remove duplicate values
         self.point_cloud = np.unique(self.point_cloud, axis=0)
 
-    def compare_with_procrustes(self, qcloud, scale=False, threshhold=.005, rounding=4):
+    def compare_with_procrustes(self, other_shape, scale=False, threshhold=.005, rounding=4):
         """
         Compares 2 point clouds using the Procrustes method. Then compares computed point clouds to see how close each model is. Also computes frobenius norm, and root mean squared error. Accuracy score is based off threshold passed in. Can include scaling or not (see procrustes for more explanation). 
 
-        :param qcloud: point cloud of second model, used as reference model
+        # NOTES: threshhold of approximate closeness needs adjusting. Not accurate for all models. Need way to measure accurate measure also.
+
+        :param other_shape: model to compare to, used as reference model
         :param scale: whether or not to allow scaling, defaults to False
         :param threshhold: determines how close points are to determine if they 'match' for accuracy score, defaults to .005
         :param rounding: how many decimals to round to, defaults to 4
         :return: frobenius norm, root mean squared error, 'accuracy' score
         """
-        result = generic(self.point_cloud, qcloud, translate=True, scale=scale)
+        result = generic(self.point_cloud, other_shape.point_cloud, translate=True, scale=scale)
         frob_error = np.round(result.error, 4)
 
         # new reference matrix
@@ -161,18 +163,20 @@ class Shape:
 
 # start = dt.datetime.now()
 
-# newshape = Shape('model_files/CubeLibre_C.stl')
+# # newshape = Shape('model_files/CubeLibre_C.stl')
 # # newshape = Shape('model_files/Dice.stl')
-# # newshape = Shape('model_files/A38_Flexi_Baby_Dragon_Keychain.stl')
+# newshape = Shape('model_files/A38_Flexi_Baby_Dragon_Keychain.stl')
 
-# rivalshape = Shape('model_files/CubeLibre_A.stl')
-# # rivalshape = Shape('model_files/A38_Flexi_Baby_Dragon.stl')
+# # rivalshape = Shape('model_files/CubeLibre_A.stl')
+# rivalshape = Shape('model_files/A38_Flexi_Baby_Dragon.stl')
 
 # stop = dt.datetime.now()
 # print(f'\ntime to load files with triangles and point clouds: {stop-start}')
 
-# # newshape.compare_shapes(rivalshape)
-# # rivalshape.compare_shapes(newshape)
+# start = dt.datetime.now()
+# res = newshape.compare_with_procrustes(rivalshape, scale=True)
 # stop = dt.datetime.now()
-# print(f'\ntime to compare models: {stop-start}')
+# print(f'time to compare models: {stop-start}')
+
+# print(f"\n{res}")
 
