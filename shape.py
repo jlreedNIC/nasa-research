@@ -60,6 +60,7 @@ class Shape:
         model2_dup = np.empty((0,3))
         model2_no_dup = np.empty((0,3))
         print(f'other point cloud size: {q_cloud.shape[0]}')
+        print(f'my point cloud size: {self.point_cloud.shape[0]}')
 
         total_verts = 0
         for vert in q_cloud:
@@ -76,7 +77,7 @@ class Shape:
                 total_verts += 1
                 
         # print(f'dups: {len(model2_dup)} no dups: {len(model2_no_dup)}')
-        print(f'dups: {model2_dup.shape[0]} no dups: {model2_no_dup.shape[0]}')
+        print(f'dups: {model2_dup.shape[0]} no dups: {model2_no_dup.shape[0]} ({total_verts})')
         return model2_no_dup, model2_dup, total_verts
 
     def compare_shapes(self, other_shape, athresh=None):
@@ -89,15 +90,18 @@ class Shape:
         no_match_list = np.empty((0,3))
 
         print(len(self.faces))
-        for vert in list_no_dups:
-            for face in self.faces:
-                isIn = face.isPointInTriangle(vert)
+        for i, vert in enumerate(list_no_dups):
+            for j in range(i-10, i+10):
+            # for j, face in enumerate(self.faces):
+                isIn = self.faces[j].isPointInTriangle(vert)
                 if isIn:
                     match_list = np.vstack((match_list, vert))
+                    break
                 else:
-                    isClose = face.isPointCloseToTriangle(vert, athresh)
+                    isClose = self.faces[j].isPointCloseToTriangle(vert, athresh)
                     if isClose:
                         approx_list = np.vstack((approx_list, vert))
+                        break
                     # else:
                     #     no_match_list = np.vstack((no_match_list, vert))
         
@@ -106,7 +110,7 @@ class Shape:
         # print(f'not close or matched: {no_match_list.shape[0]}')
 
         # total_points = list_dups.shape[0] + list_no_dups.shape[0]
-        total_matched_or_close = list_dups.shape[0] + match_list.shape[0] + approx_list.shape[0]
+        total_matched_or_close = list_dups.shape[0] + match_list.shape[0] + (approx_list.shape[0]*.5)
         print(f'score: {total_matched_or_close}/{total_points}={(total_matched_or_close/total_points)*100:.2f}%')
             
 
