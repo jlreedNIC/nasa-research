@@ -9,7 +9,7 @@
 from triangles import Triangle
 from stl import mesh
 import numpy as np
-from procrustes import generic
+from procrustes import generic, rotational
 
 class Shape:
     def __init__(self, stl_file):
@@ -60,7 +60,7 @@ class Shape:
         :param rounding: how many decimals to round to, defaults to 4
         :return: frobenius norm, root mean squared error, 'accuracy' score
         """
-        result = generic(self.point_cloud, other_shape.point_cloud, translate=True, scale=scale)
+        result = rotational(self.point_cloud, other_shape.point_cloud, translate=True, scale=scale)
         frob_error = np.round(result.error, 4)
 
         # new reference matrix
@@ -70,8 +70,13 @@ class Shape:
         transformed = np.dot(result.new_a, result.t)
         transformed = np.round(transformed, rounding)
 
+        # get error for every value
+        error = transformed-result.new_b
+        error = np.round(error, rounding)
+        print(error)
+
         # get root mean squared error (standard deviation of all errors)
-        rmse = np.sqrt(np.mean(np.sum((transformed-result.new_b)**2, axis=1)))
+        rmse = np.sqrt(np.mean(np.sum((error)**2, axis=1)))
         rmse = np.round(rmse, rounding)
 
         # give accuracy measure
@@ -79,16 +84,18 @@ class Shape:
         matched = transformed == new_b
         count_matched = np.count_nonzero(matched.all(1))
 
-        approx_match = np.round((transformed-result.new_b),rounding) <= threshhold
+        approx_match = error <= rmse
         count_approx_match = np.count_nonzero(approx_match.all(1))
 
         comparison_score = np.round(count_approx_match/transformed.shape[0],rounding)
 
-        # print(f'matched: {count_matched} approx match: {count_approx_match}')
-        # print(f'total: {transformed.shape[0]}')
-        # print(f'Frobenius score: {frob_error} RMSE: {rmse} Score: {comparison_score*100}%')
+        
 
-        return frob_error, rmse, comparison_score
+        print(f'matched: {count_matched} approx match: {count_approx_match}')
+        print(f'total: {transformed.shape[0]}')
+        print(f'Frobenius score: {frob_error} RMSE: {rmse} Score: {comparison_score*100}%')
+        return approx_match, matched, transformed
+        # return frob_error, rmse, comparison_score
 
     def remove_dup_points_from_point_cloud(self, q_cloud):
         """
@@ -123,6 +130,28 @@ class Shape:
         print(f'dups: {model2_dup.shape[0]} no dups: {model2_no_dup.shape[0]} ({total_verts})')
         return model2_no_dup, model2_dup, total_verts
 
+    def compare_point_clouds(self, other_shape):
+        padding = np.zeros(( np.abs(self.point_cloud.shape[0]-other_shape.point_cloud.shape[0]), 3))
+        orig_cloud = self.point_cloud
+        other_cloud = other_shape.point_cloud
+        # if orig smaller than other
+        if orig_cloud.shape[0] < other_cloud.shape[0]:
+            print('orig is smaller')
+            orig_cloud = np.concatenate((orig_cloud, padding))
+        else:
+            print('other cloud smaller')
+            other_cloud = np.concatenate((other_cloud, padding))
+
+        squared_dist = np.sum((self.point_cloud-other_cloud)**2, axis=1)
+        dist = np.sqrt(squared_dist)
+
+        matched = dist <= .001
+        approx_match = dist <= .01
+        no_match = dist > .01
+
+        print(dist[matched])
+        return matched, approx_match
+    
     def compare_shapes(self, other_shape, athresh=None):
         # DEPRACATED WITH ADDITION OF PROCRUSTES
         if athresh is None:
