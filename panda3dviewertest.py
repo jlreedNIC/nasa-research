@@ -1,3 +1,11 @@
+# ------------------------
+# @file     panda3dviewertest.py
+# @date     June 2024
+# @author   Jordan Reed
+# @email    reed5204@vandals.uidaho.edu
+# @brief    for testing a procrustes viewing implementation in the panda3d viewer library
+# ------------------------
+
 import numpy as np
 import time
 from shape import Shape
@@ -8,9 +16,10 @@ def show_point_cloud(cloud, colors):
     print('showing point cloud')
 
     # make model fit in window by shrinking/expanding as needed
+    print(f'model max: {np.max(cloud)}')
     if np.max(cloud) < 10:
         # scale model up
-        vertices = cloud*100
+        vertices = cloud*10
     elif np.max(cloud) > 100:
         # scale model down
         vertices = cloud/100
@@ -49,7 +58,6 @@ def pad_point_cloud(orig_cloud, other_cloud):
     
     return orig_cloud, other_cloud
     
-
 def compare_with_procrustes(orig_point_cloud, other_point_cloud, scale=False, threshhold=.005, rounding=4):
     """
     Compares 2 point clouds using the Procrustes method. Then compares computed point clouds to see how close each model is. Also computes frobenius norm, and root mean squared error. Accuracy score is based off threshold passed in. Can include scaling or not (see procrustes for more explanation). 
@@ -94,6 +102,7 @@ def compare_with_procrustes(orig_point_cloud, other_point_cloud, scale=False, th
     rmsd = np.round(rmsd, rounding)
     print(f'rmsd: {rmsd}')
 
+    # find which match
     approx_match = dist < rmsd
     matched = dist <= .001
     no_match = dist >= rmsd
@@ -133,21 +142,30 @@ def create_color_arrays(orig_array, other_array, indices_of_approx_match, indice
 
     return shape, all_colors, colors_of_orig, colors_of_other
 
-# open files
-newshape = Shape('model_files/APC_orig_propeller.stl')
-rivalshape = Shape('model_files/APC_heavily_mod_propeller.stl')
 
-# pad point clouds with 0's
-orig_padded, other_padded = pad_point_cloud(newshape.point_cloud, rivalshape.point_cloud)
-# perform procrustes
-indices_of_approx_match, indices_of_match, transformed, newa, newb = compare_with_procrustes(newshape.point_cloud, rivalshape.point_cloud, scale=False)#, threshhold=.0005)
-# indices_of_match, indices_of_approx_match = newshape.compare_point_clouds(rivalshape)
-shape, all_colors, orig_colors, other_colors = create_color_arrays(newb, transformed, indices_of_approx_match, indices_of_match)
+# ----- testing -------
+
+def main():
+    # open files
+    # newshape = Shape('model_files/shaft_mod.stl')
+    # rivalshape = Shape('model_files/shaft_orig_2.stl')
+
+    newshape = Shape('model_files/APC_orig_propeller.stl')
+    rivalshape = Shape('model_files/APC_heavily_mod_propeller.stl')
+
+    # pad point clouds with 0's
+    orig_padded, other_padded = pad_point_cloud(newshape.point_cloud, rivalshape.point_cloud)
+    # perform procrustes
+    indices_of_approx_match, indices_of_match, transformed, newa, newb = compare_with_procrustes(newshape.point_cloud, rivalshape.point_cloud, scale=False)#, threshhold=.0005)
+    # indices_of_match, indices_of_approx_match = newshape.compare_point_clouds(rivalshape)
+    shape, all_colors, orig_colors, other_colors = create_color_arrays(newb, transformed, indices_of_approx_match, indices_of_match)
 
 
-# show_point_cloud(orig_padded, orig_colors)
-# show_point_cloud(other_padded, other_colors)
-show_point_cloud(shape, all_colors)
+    # show_point_cloud(orig_padded, orig_colors)
+    # show_point_cloud(other_padded, other_colors)
+    show_point_cloud(shape, all_colors)
 
-# overlap_origs = np.vstack((transformed, newb))
-# show_point_cloud(overlap_origs, all_colors)
+    # overlap_origs = np.vstack((transformed, newb))
+    # show_point_cloud(overlap_origs, all_colors)
+
+# main()
